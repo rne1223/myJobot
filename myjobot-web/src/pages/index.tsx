@@ -48,18 +48,6 @@ export default function Home() {
       </div>
     </nav>
 
-    {/* Button "Send Request"*/}
-    <div className="p-4">
-      <button 
-      onClick={sendRequest}
-      className="border rounded-md p-2 bg-blue-500 hover:bg-blue-600 text-white">
-        Send Request 
-      </button>
-    </div>
-
-    {/* Display Message */}
-    <div className="text-lg mt-4">{botMessage}</div>
-
   </div>
   )
 }
