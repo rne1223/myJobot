@@ -6,9 +6,22 @@ const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and pow
 export default function Home() {
   
   const [apiKey, setApiKey] = useState("");
-  const [botMessage, setBotMessage] = useState("");
-
+  // const [botMessage, setBotMessage] = useState("");
+  const [userMessage, setUserMessage] = useState("");
+  const [messages, setMessages] = useState([
+    {role: "system", content: SYSTEM_MESSAGE},
+  ]);
+   
   const sendRequest = async () => {
+
+    // Getting user message from textarea input
+    const newMessage = {role: "user", content: userMessage};
+    const newMessageHistory = [ ...messages, newMessage ];
+
+    // Update Message History
+    setMessages(newMessageHistory); 
+    // Clear TextArea input
+    setUserMessage(""); 
 
     const response = await fetch(API_URL, {
       method: "POST",
@@ -18,18 +31,18 @@ export default function Home() {
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
-        messages: [{ role: "system", content: SYSTEM_MESSAGE},
-                   { role: "user", content: "Hello! Please introduce yourself" }
-                  ],
+        messages: newMessageHistory 
       }),
     });
 
     const resJson = await response.json();
-    console.log(resJson);
+    console.log("responseJson", resJson);
 
-    setBotMessage(resJson.choices[0].message.content);
+    const newBotMessage = resJson.choices[0].message;
+    const newMessages2 = [...newMessageHistory, newBotMessage];
+
+    setMessages(newMessages2)
   };
-
 
   return (
   <div className="flex flex-col h-screen">
@@ -47,6 +60,34 @@ export default function Home() {
         placeholder="Paste Api key here"/>
       </div>
     </nav>
+
+    {/* Message History */}
+    <div className="flex-1">
+      <div className="w-full max-w-screen-md mx-auto px-4">
+        {messages.map((message, idx) => (
+          <div key={idx} className="mt-3">
+            <div className="font-bold"> {message.role} </div>
+            <div className="text-lg"> {message.content} </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Message Input */}
+    <div>
+      <div className="w-full flex max-w-screen-md mx-auto px-4 pb-2">
+        <textarea value={userMessage} 
+        onChange={e => {setUserMessage(e.target.value); } }
+        className="border text-lg rounded-md p-1 flex-1" 
+        rows={1}/>
+
+        <button 
+        onClick={sendRequest}
+        className="bg-blue-500 hover:bg-blue-600 border rounded-md text-white text-lg w-20 p-1 ml-2">
+          Send
+        </button>
+      </div>
+    </div>
 
   </div>
   )
