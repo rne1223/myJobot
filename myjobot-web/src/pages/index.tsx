@@ -64,9 +64,11 @@ export default function Home() {
     {/* Message History */}
     <div className="flex-1">
       <div className="w-full max-w-screen-md mx-auto px-4">
-        {messages.map((message, idx) => (
+        {messages.filter(message => message.role !== "system").map((message, idx) => (
           <div key={idx} className="mt-3">
-            <div className="font-bold"> {message.role} </div>
+            <div className="font-bold"> 
+              {message.role === "user" ? "You" : "Jobot"} 
+            </div>
             <div className="text-lg"> {message.content} </div>
           </div>
         ))}
