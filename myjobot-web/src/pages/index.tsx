@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import Head from "next/head";
 import {createParser} from "eventsource-parser";
-import { isNullishCoalesce } from "typescript";
 
 const API_URL = "https://api.openai.com/v1/chat/completions";
 const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and powered by state-of-the-art machine learning models."
@@ -42,7 +41,6 @@ export default function Home() {
         }),
       });
 
-      // eslint-disable-next-line
       const reader = response.body.getReader();
 
       let newMessage = "";
