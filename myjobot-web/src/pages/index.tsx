@@ -41,7 +41,7 @@ export default function Home() {
         }),
       });
 
-      const reader = response.body.getReader();
+      const reader = response.body?.getReader();
 
       let newMessage = "";
       const parser = createParser((event) => {
