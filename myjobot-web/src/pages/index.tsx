@@ -41,7 +41,7 @@ export default function Home() {
         }),
       });
 
-      const reader = response.body?.getReader();
+      const reader = response.body?.getReader() ?? "";
 
       let newMessage = "";
       const parser = createParser((event) => {
@@ -72,7 +72,7 @@ export default function Home() {
 
       // eslint-disable-next-line
       while (true) {
-        if(reader) {
+        if(reader !== "") {
           const { done, value } = await reader.read();
           if (done) break;
           const text = new TextDecoder().decode(value);
