@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import Head from "next/head";
+import {createParser} from "eventsource-parser";
+import { isNullishCoalesce } from "typescript";
 
 const API_URL = "https://api.openai.com/v1/chat/completions";
 const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and powered by state-of-the-art machine learning models."
@@ -13,39 +15,79 @@ export default function Home() {
   const [messages, setMessages] = useState([
     {role: "system", content: SYSTEM_MESSAGE},
   ]);
-   
-  const sendRequest = async () => {
 
-    // Getting user message from textarea input
-    const newMessage = {role: "user", content: userMessage};
-    const newMessageHistory = [ ...messages, newMessage ];
-
-    // Update Message History
-    setMessages(newMessageHistory); 
-    // Clear TextArea input
-    setUserMessage(""); 
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+    const sendRequest = async () => {
+    const updatedMessages = [
+      ...messages,
+      {
+        role: "user",
+        content: userMessage,
       },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: newMessageHistory 
-      }),
-    });
+    ];
 
-    const resJson = await response.json();
-    console.log("responseJson", resJson);
+    setMessages(updatedMessages);
+    setUserMessage("");
 
-    const newBotMessage = resJson.choices[0].message;
-    const newMessages2 = [...newMessageHistory, newBotMessage];
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: updatedMessages,
+          stream: true,
+        }),
+      });
 
-    setMessages(newMessages2)
+      // eslint-disable-next-line
+      const reader = response.body.getReader();
+
+      let newMessage = "";
+      const parser = createParser((event) => {
+        if (event.type === "event") {
+          const data = event.data;
+          if (data === "[DONE]") {
+            return;
+          }
+          const json = JSON.parse(event.data);
+          const content = json.choices[0].delta.content;
+
+          if (!content) {
+            return;
+          }
+
+          newMessage += content;
+
+          const updatedMessages2 = [
+            ...updatedMessages,
+            { role: "assistant", content: newMessage },
+          ];
+
+          setMessages(updatedMessages2);
+        } else {
+          return "";
+        }
+      });
+
+      // eslint-disable-next-line
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = new TextDecoder().decode(value);
+        parser.feed(text);
+      }
+    } catch (error) {
+
+      if (error instanceof Error){
+        console.error("error");
+        window.alert("Error:" + error.message);
+      }
+    }
   };
-
+   
   return (
     <>
       <Head>
