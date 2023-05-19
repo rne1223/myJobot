@@ -17,8 +17,6 @@ async function handler(req: NextRequest, res: NextResponse) {
     error,
   } = await supabase.auth.getUser();
 
-  console.log(user, error);
-  
 
   if (!user || error) {
     return new Response("Unauthorized", { status: 401 });

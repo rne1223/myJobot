@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Navbar from "@/components/Navbar";
 import { useUser } from "@supabase/auth-helpers-react";
 import { streamOpenAIResponse } from "@/utils/openai";
 import ReactMarkdown from "react-markdown";
+import { useRouter } from "next/router";
 
 const API_URL = "/api/chat";
 const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and powered by state-of-the-art machine learning models."
@@ -11,7 +12,17 @@ const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and pow
 export default function Home() {
 
   const user = useUser();
-  
+  const router = useRouter();
+
+  // Check if there is a user
+  useEffect(() => { 
+    console.log("use_effect");
+    
+    if(!user){
+      router.push("/login");
+    }
+  }, [user, router]);
+
   const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState([
     {role: "system", content: SYSTEM_MESSAGE},
@@ -21,7 +32,6 @@ export default function Home() {
 
     if(!user) {
       console.log("User login");
-      
       alert("Please log in before sending a message");
     }
 
