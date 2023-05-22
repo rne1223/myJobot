@@ -1,5 +1,19 @@
 import { createParser } from "eventsource-parser";
 
+
+async function* streamAsyncIterable(stream:ReadableStream<Uint8Array>) {
+  const reader = stream.getReader();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) return;
+      yield value;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 /* Sends a request to the OpenAI API to generate a text completion for 
 the given body and returns a readable stream of encoded text data */
 export const OpenAIStream = async (body:String) => {
@@ -44,7 +58,7 @@ export const OpenAIStream = async (body:String) => {
       const parser = createParser(onParse);
 
       if (res.body) {
-        for await (const chunk of res.body) {
+        for await (const chunk of streamAsyncIterable(res.body)) {
           parser.feed(decoder.decode(chunk));
         }
       } else {

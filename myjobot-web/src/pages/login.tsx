@@ -15,6 +15,11 @@ export default function Login() {
   const router = useRouter();
 
   async function singIn() {
+
+    if(!email){
+      toast.success("Please provide an email");
+      return;
+    }
     
     const { data, error } = await supabaseClient.auth.signInWithOtp({
       email: email,
