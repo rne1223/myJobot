@@ -17,7 +17,7 @@ export default function Login() {
   async function singIn() {
 
     if(!email){
-      toast.success("Please provide an email");
+      toast.error("Please provide an email");
       return;
     }
     

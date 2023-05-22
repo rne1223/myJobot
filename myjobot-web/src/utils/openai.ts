@@ -70,20 +70,22 @@ export const OpenAIStream = async (body:String) => {
   return stream;
 };
 
-export async function streamOpenAIResponse(response: any, callback: any) {
+export async function streamOpenAIResponse(response: Response, callback: Function ) {
 
-  const reader = response.body.getReader();
+  const reader = response?.body?.getReader();
   const decoder = new TextDecoder();
   let done = false;
   let text = "";
   let isFirst = true;
 
   while (!done) {
-    const { value, done: doneReading } = await reader.read();
-    done = doneReading;
-    const chunkValue = decoder.decode(value);
-    text += chunkValue;
-    callback(text, isFirst);
-    isFirst = false;
+    if(reader) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunkValue = decoder.decode(value);
+      text += chunkValue;
+      callback(text, isFirst);
+      isFirst = false;
+    }
   }
 }
