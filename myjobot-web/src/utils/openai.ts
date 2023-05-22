@@ -2,7 +2,7 @@ import { createParser } from "eventsource-parser";
 
 /* Sends a request to the OpenAI API to generate a text completion for 
 the given body and returns a readable stream of encoded text data */
-export const OpenAIStream = async (body) => {
+export const OpenAIStream = async (body:String) => {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
@@ -43,8 +43,12 @@ export const OpenAIStream = async (body) => {
 
       const parser = createParser(onParse);
 
-      for await (const chunk of res.body) {
-        parser.feed(decoder.decode(chunk));
+      if (res.body) {
+        for await (const chunk of res.body) {
+          parser.feed(decoder.decode(chunk));
+        }
+      } else {
+        console.log("res.body is null");
       }
     },
   });
