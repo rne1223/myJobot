@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useUser } from "@supabase/auth-helpers-react";
+import { useRouter } from "next/router";
 import Head from "next/head";
 import Navbar from "@/components/Navbar";
-import { useUser } from "@supabase/auth-helpers-react";
+import Message from "@/components/Message";
 import { streamOpenAIResponse } from "@/utils/openai";
-import ReactMarkdown from "react-markdown";
-import { useRouter } from "next/router";
 
 const API_URL = "/api/chat";
 const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and powered by state-of-the-art machine learning models."
@@ -106,14 +106,7 @@ export default function Home() {
           {messages
             .filter((message) => message.role !== "system")
             .map((message, idx) => (
-              <div key={idx} className="my-3">
-                <div className="font-bold">
-                  {message.role === "user" ? "You" : "Jobot"}
-                </div>
-                <div className="text-lg prose">
-                  <ReactMarkdown>{message.content}</ReactMarkdown>
-                </div>
-              </div>
+              <Message key={idx} {...message}/>
             ))}
         </div>
       </div>
