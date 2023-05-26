@@ -5,6 +5,7 @@ import Head from "next/head";
 import Navbar from "@/components/Navbar";
 import Message from "@/components/Message";
 import { streamOpenAIResponse } from "@/utils/openai";
+import MessageHistory from "@/components/MessageHistory";
 
 const API_URL = "/api/chat";
 const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and powered by state-of-the-art machine learning models."
@@ -99,18 +100,8 @@ export default function Home() {
         <title>MyJobot - A chatgpt bot cloned</title>
       </Head>
       <div className="flex flex-col h-screen">
-
-      <Navbar/>
-      <div className="flex-1 overflow-y-scroll">
-        <div className="w-full max-w-screen-md mx-auto px-4">
-          {messages
-            .filter((message) => message.role !== "system")
-            .map((message, idx) => (
-              <Message key={idx} {...message}/>
-            ))}
-        </div>
-      </div>
-
+        <Navbar/>
+        <MessageHistory history={messages}/>
         <div>
           <div className="w-full flex max-w-screen-md mx-auto px-4 pb-2">
             <textarea 

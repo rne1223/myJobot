@@ -1,7 +1,12 @@
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 
-const Message = ({ role , content }: {role:string, content:string} ) => {
+type AppProps= {
+    role: string,
+    content: string,
+};
+
+const Message = ({ role , content }: AppProps) => {
   return (
     <div className="my-4 mx-auto flex w-full max-w-4xl ">
       <Image
