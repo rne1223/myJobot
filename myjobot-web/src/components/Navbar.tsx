@@ -1,5 +1,6 @@
 import {useUser} from "@supabase/auth-helpers-react";
 import Link from "next/link";
+import React from "react";
 
 export default function Navbar() {
     const user = useUser();
