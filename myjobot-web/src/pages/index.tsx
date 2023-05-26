@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useUser } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import Navbar from "@/components/Navbar";
-import { streamOpenAIResponse } from "@/utils/openai";
-import MessageHistory from "@/components/MessageHistory";
+import Navbar from "../components/Navbar";
+import { streamOpenAIResponse } from "../utils/openai";
+import MessageHistory from "../components/MessageHistory";
 
 const API_URL = "/api/chat";
 const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and powered by state-of-the-art machine learning models."
