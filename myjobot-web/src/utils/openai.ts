@@ -1,5 +1,13 @@
 import { createParser } from "eventsource-parser";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { useUser } from "@supabase/auth-helpers-react";
 
+
+type Message = {
+    role: string,
+    content: string,
+};
 
 async function* streamAsyncIterable(stream:ReadableStream<Uint8Array>) {
   const reader = stream.getReader();
@@ -28,6 +36,7 @@ export const OpenAIStream = async (body:String) => {
     method: "POST",
     body: JSON.stringify(body),
   });
+
 
   if (res.status !== 200) {
     throw new Error("OpenAI API returned an error");
@@ -88,4 +97,57 @@ export async function streamOpenAIResponse(response: Response, callback: Functio
       isFirst = false;
     }
   }
+}
+
+export async function postOpenAIMessages(messages:Array<Message>) {
+
+      return await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: messages,
+          stream: true,
+        }),
+      });
+}
+
+const SYSTEM_MESSAGE = "You are YourJobot, a helpful AI developed by you and powered by state-of-the-art machine learning models."
+
+export function useOpenAIMessages() {
+  const [history, setHistory] = useState<Message[]>([
+    { role: "system", content:SYSTEM_MESSAGE },
+  ]);
+
+  const [sending, setSending] = useState(false);
+  const user = useUser();
+
+  const sendMessages = async (newMessages: Message[]) => {
+    if (!user) {
+      toast.error("You must be logged in to send a message");
+    }
+
+    const oldHistory = history;
+    const newHistory = [...history, ...newMessages];
+    setSending(true);
+    setHistory(newHistory);
+
+    const response = await postOpenAIMessages(newHistory);
+
+    if(!response.ok || !response.body){
+      setSending(false);
+      setHistory(oldHistory);
+      toast.error("Failed to send:" + response.statusText);
+    }
+
+    await streamOpenAIResponse(response, (content:string) => {
+      setHistory([...newHistory, {role: "assistant", content}]);
+    });
+
+    setSending(false);
+    return true;
+  };
+
+  return {history, setHistory, sending, sendMessages};
 }
