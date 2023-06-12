@@ -1,16 +1,17 @@
 import React, { useEffect, useRef } from 'react'
-import Message from './Message';
+import MessageEl from './Message';
 
-type message = {
+type Message = {
     role: string,
     content: string,
 };
 
-type AppProps = {
-  history: Array<message>;
+type MessageHistoryProps = {
+  history: Array<Message>;
 }; 
 
-const MessageHistory = ({history}: AppProps) => {
+const MessageHistory = ({history: messages}: MessageHistoryProps) => {
+
 
     let messagesWindow = useRef<HTMLDivElement | null>(null);
 
@@ -18,18 +19,16 @@ const MessageHistory = ({history}: AppProps) => {
         if(messagesWindow?.current) {
             messagesWindow.current.scrollTop = messagesWindow.current.scrollHeight;
         }
-    }, [history]);
+    }, [messages]);
 
   return (
     <div
-    className='flex-1 overflow-y-auto py-2 px-2'
-    ref={el => messagesWindow.current = el}
-    >
-        {history
+      className='flex-1 overflow-y-auto py-2 px-2'
+     ref={el => messagesWindow.current = el}
+     >
+      { messages
         .filter(message => message.role !== "system")
-        .map((message, idx) => (
-            <Message key={idx} {...message} />
-        ))}
+        .map((message, idx) => <MessageEl key={idx} {...message} /> )}
 
     </div>
   )
